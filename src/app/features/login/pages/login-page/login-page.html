@@ -96,15 +96,18 @@
                     </div>
                 </div>
 
-                <!-- Remember me -->
-                <div class="remember-row">
-                    <label class="checkbox-label" for="remember-me">
-                        <input type="checkbox" id="remember-me" [ngModel]="rememberMe()"
-                            (ngModelChange)="rememberMe.set($event)" name="rememberMe" />
-                        <span class="checkbox-custom"></span>
-                        <span class="checkbox-text">Rimani collegato</span>
-                    </label>
+                <!-- Error message -->
+                @if (errorMessage()) {
+                <div class="error-message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span>{{ errorMessage() }}</span>
                 </div>
+                }
 
                 <!-- Submit button -->
                 <button type="submit" class="login-btn" [class.loading]="isLoading()" [disabled]="isLoading()">
