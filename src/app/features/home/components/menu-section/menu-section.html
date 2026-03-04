@@ -1,0 +1,24 @@
+<section class="menu-section section" id="menu">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Il Nostro Menù Digitale</h2>
+            <p class="section-subtitle">
+                Esplora i sapori autentici di Napoli nell'era moderna del digitale.
+                Consulta le nostre categorie e scopri la vera tradizione campana.
+            </p>
+        </div>
+        <div class="menu-categories">
+            @for (cat of categories(); track cat.name) {
+            <button class="category-chip" id="category-{{ cat.name }}">
+                <span class="category-icon">{{ cat.icon }}</span>
+                <span class="category-name">{{ cat.name }}</span>
+            </button>
+            }
+        </div>
+        <div class="menu-download">
+            <a href="#" class="btn btn-primary download-btn">
+                📄 Scarica Menù Completo (PDF)
+            </a>
+        </div>
+    </div>
+</section>

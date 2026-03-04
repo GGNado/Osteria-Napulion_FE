@@ -1,0 +1,30 @@
+<nav class="navbar" id="home-navbar">
+    <div class="navbar-container">
+        <a class="navbar-brand" routerLink="/">
+            <span class="brand-icon">🍝</span>
+            <span class="brand-name">Osteria Napulion</span>
+        </a>
+
+        <ul class="navbar-links" [class.open]="mobileMenuOpen()">
+            <li><a href="#menu" (click)="closeMobileMenu()">Menu</a></li>
+            <li><a href="#specials" (click)="closeMobileMenu()">Specialità</a></li>
+            <li><a href="#about" (click)="closeMobileMenu()">Chi Siamo</a></li>
+            <li><a href="#reviews" (click)="closeMobileMenu()">Recensioni</a></li>
+            <li><a href="#info" (click)="closeMobileMenu()">Contatti</a></li>
+            <li class="nav-cta-mobile">
+                <a href="#booking" class="btn btn-primary" (click)="closeMobileMenu()">Prenota</a>
+                <a routerLink="/login" routerLinkActive="active" class="btn btn-secondary" (click)="closeMobileMenu()">Area Personale</a>
+            </li>
+        </ul>
+
+        <a href="#booking" class="btn btn-primary nav-cta-desktop" id="nav-cta-book">Prenota</a>
+        <a routerLink="/login" routerLinkActive="active" class="btn btn-secondary nav-cta-desktop" id="nav-cta-login">Area Personale</a>
+
+        <button class="hamburger" id="hamburger-btn" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()"
+            aria-label="Menu di navigazione">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>

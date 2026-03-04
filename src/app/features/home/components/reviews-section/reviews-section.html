@@ -1,0 +1,27 @@
+<section class="reviews section" id="reviews">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Recensioni Tripadvisor</h2>
+            <div class="reviews-rating-summary">
+                <span class="stars">★★★★★</span>
+                <span class="rating-text">4.845 basato su oltre 504 recensioni</span>
+            </div>
+        </div>
+        <div class="reviews-grid">
+            @for (review of reviews(); track review.author) {
+            <div class="review-card">
+                <div class="review-stars">
+                    @for (star of getStars(review.rating); track $index) {
+                    <span class="star">★</span>
+                    }
+                </div>
+                <p class="review-text">"{{ review.text }}"</p>
+                <div class="review-footer">
+                    <span class="review-author">{{ review.author }}</span>
+                    <span class="review-date">{{ review.date }}</span>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</section>

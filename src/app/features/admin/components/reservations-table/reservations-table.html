@@ -1,0 +1,51 @@
+<div class="table-card" id="reservations-table">
+    <div class="table-header">
+        <h2 class="table-title">Prenotazioni in Arrivo</h2>
+        <div class="table-filters">
+            @for (f of filters; track f.key) {
+            <button class="filter-chip" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)"
+                id="filter-{{ f.key }}">
+                {{ f.label }}
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>CLIENTE</th>
+                    <th>ORA</th>
+                    <th>OSPITI</th>
+                    <th>STATO</th>
+                    <th>AZIONE</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (res of filteredReservations(); track res.id) {
+                <tr>
+                    <td class="client-cell">
+                        <span class="client-avatar">{{ res.initials }}</span>
+                        <span class="client-name">{{ res.clientName }}</span>
+                    </td>
+                    <td>{{ res.time }}</td>
+                    <td>{{ res.guests }} Persone</td>
+                    <td>
+                        <span class="status-badge" [class]="getStatusClass(res.status)">
+                            {{ res.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn" aria-label="Azioni per {{ res.clientName }}">•••</button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-footer">
+        <button class="view-all-btn">Tutte</button>
+    </div>
+</div>

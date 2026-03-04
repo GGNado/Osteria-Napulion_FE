@@ -1,0 +1,26 @@
+<aside class="sidebar" id="admin-sidebar">
+    <div class="sidebar-brand">
+        <span class="brand-icon">🍝</span>
+        <span class="brand-name">Osteria Napulion</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        @for (item of menuItems(); track item.label) {
+        <button class="nav-item" [class.active]="activeItem() === item.label" (click)="setActive(item.label)"
+            id="nav-item-{{ item.label }}">
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+        </button>
+        }
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="shift-status">
+            <span class="shift-label">STATO TURNO</span>
+            <div class="shift-info">
+                <span class="shift-dot"></span>
+                <span>Servizio Cena Attivo</span>
+            </div>
+        </div>
+    </div>
+</aside>

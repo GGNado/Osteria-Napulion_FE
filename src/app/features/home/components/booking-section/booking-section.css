@@ -1,0 +1,49 @@
+:host {
+    display: block;
+}
+
+.booking {
+    background: var(--bg-secondary);
+}
+
+.booking-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+.booking-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.booking-text {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    max-width: 500px;
+}
+
+.booking-cta {
+    flex-shrink: 0;
+    padding: 14px 36px;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .booking-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .booking-title {
+        font-size: 1.5rem;
+    }
+
+    .booking-cta {
+        width: 100%;
+    }
+}

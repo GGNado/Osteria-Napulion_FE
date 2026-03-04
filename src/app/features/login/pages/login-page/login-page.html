@@ -1,0 +1,156 @@
+<div class="login-wrapper">
+    <!-- Header -->
+    <header class="login-header">
+        <a routerLink="/" class="logo-link">
+            <span class="logo-icon">🍽</span>
+            <span class="logo-text">Osteria Napulion</span>
+        </a>
+        <button class="help-btn" title="Aiuto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+        </button>
+    </header>
+
+    <!-- Background overlay -->
+    <div class="login-bg"></div>
+
+    <!-- Main content -->
+    <main class="login-main">
+        <div class="login-card">
+            <!-- Card icon -->
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                    <path d="M7 2v20" />
+                    <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+                </svg>
+            </div>
+
+            <!-- Card header -->
+            <h1 class="card-title">Accesso Riservato</h1>
+            <p class="card-subtitle">Inserisci le credenziali del personale per gestire l'Osteria</p>
+
+            <!-- Login form -->
+            <form (ngSubmit)="onSubmit()" class="login-form">
+                <!-- Email field -->
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Email o Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </span>
+                        <input id="login-email" type="text" class="form-input" placeholder="esempio@napulion.it"
+                            [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" autocomplete="username"
+                            required />
+                    </div>
+                </div>
+
+                <!-- Password field -->
+                <div class="form-group">
+                    <div class="label-row">
+                        <label class="form-label" for="login-password">Password</label>
+                        <a href="#" class="forgot-link">Dimenticata?</a>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                        </span>
+                        <input id="login-password" [type]="showPassword() ? 'text' : 'password'" class="form-input"
+                            placeholder="••••••••" [ngModel]="password()" (ngModelChange)="password.set($event)"
+                            name="password" autocomplete="current-password" required />
+                        <button type="button" class="toggle-password-btn" (click)="togglePasswordVisibility()"
+                            [attr.aria-label]="showPassword() ? 'Nascondi password' : 'Mostra password'">
+                            @if (showPassword()) {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                            } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember me -->
+                <div class="remember-row">
+                    <label class="checkbox-label" for="remember-me">
+                        <input type="checkbox" id="remember-me" [ngModel]="rememberMe()"
+                            (ngModelChange)="rememberMe.set($event)" name="rememberMe" />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">Rimani collegato</span>
+                    </label>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="login-btn" [class.loading]="isLoading()" [disabled]="isLoading()">
+                    @if (isLoading()) {
+                    <span class="spinner"></span>
+                    <span>Accesso in corso...</span>
+                    } @else {
+                    <span>Entra nel sistema</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                    </svg>
+                    }
+                </button>
+            </form>
+
+            <!-- Support section -->
+            <div class="support-section">
+                <span class="support-label">SUPPORTO TECNICO</span>
+                <div class="support-links">
+                    <a href="tel:+390001234567" class="support-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        Chiamaci
+                    </a>
+                    <a href="mailto:supporto@napulion.it" class="support-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2" />
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                        </svg>
+                        Email
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="login-footer">
+        <p>&copy; 2024 Osteria Napulion – Gestionale Interno v2.4.0</p>
+        <p>P.IVA 01234567890 • Tutti i diritti riservati</p>
+    </footer>
+</div>

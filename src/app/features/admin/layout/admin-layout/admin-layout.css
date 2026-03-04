@@ -1,0 +1,17 @@
+:host {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-content {
+    flex: 1;
+    margin-left: 240px;
+    background: var(--bg-secondary);
+    min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+    .admin-content {
+        margin-left: 72px;
+    }
+}

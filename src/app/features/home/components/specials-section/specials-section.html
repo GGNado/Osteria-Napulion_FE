@@ -1,0 +1,26 @@
+<section class="specials section" id="specials">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Specialità Stagionali / Piatti Migliori</h2>
+            <p class="section-subtitle">
+                I nostri chef selezionano le migliori materie prime di produzione italiana del territorio campano.
+            </p>
+        </div>
+        <div class="specials-grid">
+            @for (dish of dishes(); track dish.name) {
+            <div class="dish-card" id="dish-card-{{ dish.name }}">
+                <div class="dish-image">
+                    <img [src]="dish.imageUrl" [alt]="dish.name" loading="lazy">
+                </div>
+                <div class="dish-info">
+                    <div class="dish-header">
+                        <h3 class="dish-name">{{ dish.name }}</h3>
+                        <span class="dish-price">{{ dish.price }}</span>
+                    </div>
+                    <p class="dish-desc">{{ dish.description }}</p>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</section>
