@@ -13,12 +13,20 @@
             <li><a href="#info" (click)="closeMobileMenu()">Contatti</a></li>
             <li class="nav-cta-mobile">
                 <a href="#booking" class="btn btn-primary" (click)="closeMobileMenu()">Prenota</a>
-                <a routerLink="/login" routerLinkActive="active" class="btn btn-secondary" (click)="closeMobileMenu()">Area Personale</a>
+                @if (isAuthenticated()) {
+                <a routerLink="/admin" class="btn btn-secondary" (click)="closeMobileMenu()">Dashboard</a>
+                } @else {
+                <a routerLink="/login" class="btn btn-secondary" (click)="closeMobileMenu()">Area Personale</a>
+                }
             </li>
         </ul>
 
         <a href="#booking" class="btn btn-primary nav-cta-desktop" id="nav-cta-book">Prenota</a>
-        <a routerLink="/login" routerLinkActive="active" class="btn btn-secondary nav-cta-desktop" id="nav-cta-login">Area Personale</a>
+        @if (isAuthenticated()) {
+        <a routerLink="/admin" class="btn btn-secondary nav-cta-desktop" id="nav-cta-login">Dashboard</a>
+        } @else {
+        <a routerLink="/login" class="btn btn-secondary nav-cta-desktop" id="nav-cta-login">Area Personale</a>
+        }
 
         <button class="hamburger" id="hamburger-btn" [class.active]="mobileMenuOpen()" (click)="toggleMobileMenu()"
             aria-label="Menu di navigazione">

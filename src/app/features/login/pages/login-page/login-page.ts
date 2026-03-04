@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-login-page',
@@ -10,11 +11,14 @@ import { RouterLink } from '@angular/router';
     styleUrl: './login-page.css',
 })
 export class LoginPageComponent {
+    private readonly authService = inject(AuthService);
+    private readonly router = inject(Router);
+
     email = signal('');
     password = signal('');
-    rememberMe = signal(false);
     showPassword = signal(false);
     isLoading = signal(false);
+    errorMessage = signal<string | null>(null);
 
     togglePasswordVisibility(): void {
         this.showPassword.update((v) => !v);
@@ -22,9 +26,20 @@ export class LoginPageComponent {
 
     onSubmit(): void {
         if (!this.email() || !this.password()) return;
+
         this.isLoading.set(true);
-        // TODO: Implement actual authentication logic
-        console.log('Login attempt:', { email: this.email(), rememberMe: this.rememberMe() });
-        setTimeout(() => this.isLoading.set(false), 1500);
+        this.errorMessage.set(null);
+
+        this.authService
+            .login({ usernameOrEmail: this.email(), password: this.password() })
+            .subscribe((success) => {
+                this.isLoading.set(false);
+                if (success) {
+                    this.router.navigateByUrl('/admin');
+                } else {
+                    console.error(success);
+                    this.errorMessage.set('Credenziali non valide. Riprova.');
+                }
+            });
     }
 }
