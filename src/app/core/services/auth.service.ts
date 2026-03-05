@@ -45,7 +45,6 @@ export class AuthService {
       .post<UserDTO>(AllUrl.login(), body, { observe: 'response' })
       .pipe(
         map((response) => {
-          console.log(response);
           const token = response.headers.get('Authorization');
           if (!token) return false;
           this._token.set(token);

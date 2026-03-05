@@ -37,7 +37,6 @@ export class LoginPageComponent {
                 if (success) {
                     this.router.navigateByUrl('/admin');
                 } else {
-                    console.error(success);
                     this.errorMessage.set('Credenziali non valide. Riprova.');
                 }
             });
