@@ -17,6 +17,11 @@ export const routes: Routes = [
             import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
     },
     {
+        path: 'prenota',
+        loadChildren: () =>
+            import('./features/reservation/reservation.routes').then((m) => m.RESERVATION_ROUTES),
+    },
+    {
         path: '**',
         redirectTo: '',
     },

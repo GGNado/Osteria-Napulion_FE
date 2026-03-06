@@ -1,0 +1,29 @@
+:host {
+    display: block;
+}
+
+.reservation-main {
+    padding-top: 100px;
+    padding-bottom: var(--section-padding-y);
+    min-height: 80vh;
+}
+
+.reservation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 0;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+}
+
+@media (max-width: 960px) {
+    .reservation-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reservation-main {
+        padding-top: 80px;
+    }
+}
