@@ -72,12 +72,11 @@
                     <th>ORA</th>
                     <th>OSPITI</th>
                     <th>STATO</th>
-                    <th>AZIONE</th>
                 </tr>
             </thead>
             <tbody>
                 @for (res of filteredReservations(); track res.id) {
-                <tr>
+                <tr class="reservation-row" (click)="openDetail(res)">
                     <td class="client-cell">
                         <span class="client-avatar">{{ res.initials }}</span>
                         <div class="client-info">
@@ -91,23 +90,9 @@
                     <td>{{ res.guests }} Persone</td>
                     <td>
                         <span class="status-badge" [class]="getStatusClass(res.status)">
+                            <span class="status-icon">{{ getStatusIcon(res.status) }}</span>
                             {{ res.status }}
                         </span>
-                    </td>
-                    <td class="action-cell">
-                        <button class="action-btn" (click)="toggleMenu(res.id, $event)"
-                            aria-label="Azioni per {{ res.clientName }}">•••</button>
-                        @if (openMenuId() === res.id) {
-                        <div class="action-dropdown">
-                            @for (action of statusActions; track action.value) {
-                            <button class="dropdown-item" [class.active]="res.status === action.value"
-                                (click)="changeStatus(res, action.value)">
-                                <span class="dropdown-icon">{{ action.icon }}</span>
-                                {{ action.label }}
-                            </button>
-                            }
-                        </div>
-                        }
                     </td>
                 </tr>
                 }
@@ -116,3 +101,108 @@
     </div>
     }
 </div>
+
+<!-- ── Detail Modal ── -->
+@if (selectedReservation(); as res) {
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 class="modal-title">Dettaglio Prenotazione</h3>
+            <button class="modal-close" (click)="closeDetail()" aria-label="Chiudi">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="modal-status-row">
+                <span class="status-badge status-badge-lg" [class]="getStatusClass(res.status)">
+                    <span class="status-icon">{{ getStatusIcon(res.status) }}</span>
+                    {{ res.status }}
+                </span>
+            </div>
+
+            <div class="modal-info-grid">
+                <div class="info-item">
+                    <span class="info-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        Cliente
+                    </span>
+                    <span class="info-value">{{ res.clientName }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Orario
+                    </span>
+                    <span class="info-value">{{ res.time }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        Ospiti
+                    </span>
+                    <span class="info-value">{{ res.guests }} Persone</span>
+                </div>
+                @if (res.phone) {
+                <div class="info-item">
+                    <span class="info-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                        Telefono
+                    </span>
+                    <span class="info-value">{{ res.phone }}</span>
+                </div>
+                }
+                @if (res.email) {
+                <div class="info-item">
+                    <span class="info-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        Email
+                    </span>
+                    <span class="info-value">{{ res.email }}</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <p class="modal-actions-label">Cambia Stato</p>
+            <div class="modal-actions">
+                @for (action of statusActions; track action.value) {
+                <button class="modal-action-btn" [class.active]="res.status === action.label"
+                    [class]="'action-' + action.value.toLowerCase()" (click)="changeStatus(res, action.value)"
+                    [disabled]="res.status === action.label">
+                    <span class="modal-action-icon">{{ action.icon }}</span>
+                    {{ action.label }}
+                </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}

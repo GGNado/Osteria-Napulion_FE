@@ -5,9 +5,10 @@
     </div>
 
     <nav class="sidebar-nav">
-        @for (item of menuItems(); track item.label) {
-        <button class="nav-item" [class.active]="activeItem() === item.label" (click)="setActive(item.label)"
-            id="nav-item-{{ item.label }}">
+        @for (item of menuItems; track item.label) {
+        @if (item.enabled) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/admin' }" id="nav-item-{{ item.label }}">
             <span class="nav-icon">
                 @switch (item.icon) {
                 @case ('dashboard') {
@@ -28,6 +29,14 @@
                     <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
                 }
+                }
+            </span>
+            <span class="nav-label">{{ item.label }}</span>
+        </a>
+        } @else {
+        <span class="nav-item disabled" id="nav-item-{{ item.label }}">
+            <span class="nav-icon">
+                @switch (item.icon) {
                 @case ('map') {
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -56,7 +65,8 @@
                 }
             </span>
             <span class="nav-label">{{ item.label }}</span>
-        </button>
+        </span>
+        }
         }
     </nav>
 

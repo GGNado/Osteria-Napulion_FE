@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking.service';
 import { FormsModule } from '@angular/forms';
 
@@ -22,7 +22,9 @@ interface ReservationRow {
     templateUrl: './reservations-table.html',
     styleUrl: './reservations-table.css',
 })
-export class ReservationsTableComponent implements OnInit {
+export class ReservationsTableComponent implements OnInit, OnChanges {
+    /** Optional: date passed from calendar selection */
+    @Input() initialDate: string | null = null;
     private readonly bookingService = inject(BookingService);
 
     readonly selectedDate = signal<string>(this.getTodayString());
@@ -30,28 +32,45 @@ export class ReservationsTableComponent implements OnInit {
     readonly loading = signal<boolean>(false);
     readonly error = signal<string | null>(null);
     readonly activeFilter = signal<FilterType>('all');
-    readonly openMenuId = signal<number | null>(null);
+    readonly selectedReservation = signal<ReservationRow | null>(null);
 
     readonly statusActions: { label: string; value: string; icon: string }[] = [
-        { label: 'Confermato', value: 'CONFERMATO', icon: '✓' },
+        { label: 'Confermato', value: 'CONFERMATA', icon: '✓' },
         { label: 'Seduto', value: 'SEDUTO', icon: '🪑' },
         { label: 'In Attesa', value: 'IN_ATTESA', icon: '⏳' },
-        { label: 'Rifiutata', value: 'RIFIUTATA', icon: '✕' },
+        { label: 'Annulla', value: 'ANNULLATA', icon: '✕' },
     ];
 
+    /** Status priority for sorting (lower = shown first) */
+    private readonly statusPriority: Record<string, number> = {
+        'In Attesa': 0,
+        'Confermato': 1,
+        'Seduto': 2,
+        'Rifiutata': 3,
+        'Annullata': 4,
+    };
+
     readonly filteredReservations = computed<ReservationRow[]>(() => {
-        const all = this.reservations();
+        let list = this.reservations();
         const filter = this.activeFilter();
         switch (filter) {
             case 'confirmed':
-                return all.filter((r) => r.status === 'Confermato');
+                console.log(list);
+                list = list.filter((r) => r.status === 'CONFERMATA');
+                break;
             case 'seated':
-                return all.filter((r) => r.status === 'Seduto');
+                list = list.filter((r) => r.status === 'SEDUTO');
+                break;
             case 'waiting':
-                return all.filter((r) => r.status === 'In Attesa');
-            default:
-                return all;
+                list = list.filter((r) => r.status === 'IN_ATTESA');
+                break;
         }
+        // Sort by status priority
+        return [...list].sort(
+            (a, b) =>
+                (this.statusPriority[a.status] ?? 99) -
+                (this.statusPriority[b.status] ?? 99)
+        );
     });
 
     readonly filters: { key: FilterType; label: string }[] = [
@@ -63,6 +82,14 @@ export class ReservationsTableComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadReservations(this.selectedDate());
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['initialDate'] && changes['initialDate'].currentValue) {
+            const date = changes['initialDate'].currentValue;
+            this.selectedDate.set(date);
+            this.loadReservations(date);
+        }
     }
 
     onDateChange(date: string): void {
@@ -82,36 +109,43 @@ export class ReservationsTableComponent implements OnInit {
         this.activeFilter.set(filter);
     }
 
-    toggleMenu(id: number, event: Event): void {
-        event.stopPropagation();
-        this.openMenuId.set(this.openMenuId() === id ? null : id);
+    openDetail(res: ReservationRow): void {
+        this.selectedReservation.set(res);
+    }
+
+    closeDetail(): void {
+        this.selectedReservation.set(null);
+    }
+
+    onOverlayClick(event: MouseEvent): void {
+        if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
+            this.closeDetail();
+        }
     }
 
     changeStatus(res: ReservationRow, newStatus: string): void {
-        this.openMenuId.set(null);
         const oldStatus = res.status;
         // Optimistic update
         this.reservations.update(list =>
             list.map(r => r.id === res.id ? { ...r, status: newStatus } : r)
         );
-
-
+        // Refresh modal if open
+        const sel = this.selectedReservation();
+        if (sel && sel.id === res.id) {
+            this.selectedReservation.set({ ...sel, status: newStatus });
+        }
 
         this.bookingService.updateReservationStatus(res.id, newStatus).subscribe({
             error: (err) => {
-                // Rollback on failure
-
-              console.log(err);
+                console.log(err);
                 this.reservations.update(list =>
                     list.map(r => r.id === res.id ? { ...r, status: oldStatus } : r)
                 );
+                if (sel && sel.id === res.id) {
+                    this.selectedReservation.set({ ...sel, status: oldStatus });
+                }
             },
         });
-    }
-
-    @HostListener('document:click')
-    closeMenu(): void {
-        this.openMenuId.set(null);
     }
 
     getStatusClass(status: string): string {
@@ -123,7 +157,24 @@ export class ReservationsTableComponent implements OnInit {
             case 'In Attesa':
                 return 'status-waiting';
             case 'Rifiutata':
+            case 'Annullata':
                 return 'status-rejected';
+            default:
+                return '';
+        }
+    }
+
+    getStatusIcon(status: string): string {
+        switch (status) {
+            case 'Confermato':
+                return '✓';
+            case 'Seduto':
+                return '🪑';
+            case 'In Attesa':
+                return '⏳';
+            case 'Rifiutata':
+            case 'Annullata':
+                return '✕';
             default:
                 return '';
         }

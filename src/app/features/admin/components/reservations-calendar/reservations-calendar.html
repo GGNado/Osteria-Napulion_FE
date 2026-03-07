@@ -1,0 +1,43 @@
+<div class="calendar-card" id="reservations-calendar">
+    <div class="calendar-header">
+        <button class="cal-nav-btn" (click)="prevMonth()" aria-label="Mese precedente" id="cal-prev-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+        </button>
+        <h2 class="calendar-title">{{ monthYearLabel() }}</h2>
+        <button class="cal-nav-btn" (click)="nextMonth()" aria-label="Mese successivo" id="cal-next-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="calendar-grid">
+        <!-- Weekday headers -->
+        @for (wd of weekDays; track wd) {
+        <div class="weekday-header">{{ wd }}</div>
+        }
+
+        <!-- Day cells -->
+        @for (day of calendarDays(); track day.date.toISOString()) {
+        <button class="day-cell" [class.other-month]="!day.isCurrentMonth" [class.today]="day.isToday"
+            [class.selected]="isSelected(day)" [class.has-reservations]="day.reservationCount > 0"
+            [disabled]="!day.isCurrentMonth" (click)="selectDay(day)">
+            <span class="day-number">{{ day.day }}</span>
+            @if (day.isCurrentMonth && day.reservationCount > 0) {
+            <span class="day-badge">{{ day.reservationCount }}</span>
+            }
+        </button>
+        }
+    </div>
+
+    @if (loadingDays()) {
+    <div class="calendar-loading">
+        <div class="cal-spinner"></div>
+        <span>Caricamento…</span>
+    </div>
+    }
+</div>
