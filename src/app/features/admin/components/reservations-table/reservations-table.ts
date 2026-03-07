@@ -9,6 +9,7 @@ interface ReservationRow {
     clientName: string;
     initials: string;
     time: string;
+    table: string;
     guests: number;
     status: string;
     email: string;
@@ -219,6 +220,7 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         return {
             id: item.id ?? index,
             clientName: fullName || 'N/D',
+            table: item.tavolo ? `${item.tavolo}` : 'N/D',
             initials: initials || '??',
             time: time || 'N/D',
             guests: item.coperti ?? 0,

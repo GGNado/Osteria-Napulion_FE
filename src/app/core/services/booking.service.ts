@@ -17,6 +17,10 @@ export class BookingService {
     return this.http.get(AllUrl.reservationByDate(date), { observe: 'response' });
   }
 
+  getReservationCounter() : Observable<HttpResponse<any>>{
+    return this.http.get(AllUrl.reservationCounter(), { observe: 'response' });
+  }
+
   updateReservationStatus(id: number, stato: String): Observable<HttpResponse<any>> {
     console.log(stato);
 

@@ -18,4 +18,8 @@ export class AllUrl {
   static reservationUpdateStatus(id: number) {
     return this.baseUrl + '/prenotazioni/' + id + '/state';
   }
+
+  static reservationCounter(){
+    return this.baseUrl + '/prenotazioni/month/counter';
+  }
 }

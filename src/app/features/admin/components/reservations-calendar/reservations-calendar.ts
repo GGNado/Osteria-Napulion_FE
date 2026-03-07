@@ -147,44 +147,29 @@ export class ReservationsCalendarComponent implements OnInit {
         this.calendarDays.set(days);
     }
 
-    // TODO: Sostituire con un singolo endpoint backend tipo
-    // GET /api/reservations/counts?month=03&year=2026
-    // che restituisce { "2026-03-01": 3, "2026-03-05": 7, ... }
-    // Attualmente fa una chiamata API per ogni giorno del mese (es. 31 chiamate per Marzo)
     private loadMonthReservations(): void {
-        const month = this.currentMonth();
-        const year = this.currentYear();
-        const lastDay = new Date(year, month + 1, 0);
         this.loadingDays.set(true);
         this.reservationCounts.clear();
 
-        let completed = 0;
-        const totalDays = lastDay.getDate();
-
-        for (let d = 1; d <= totalDays; d++) {
-            const date = new Date(year, month, d);
-            const dateStr = this.formatDate(date);
-
-            this.bookingService.getResevationsFromdate(dateStr).subscribe({
-                next: (response) => {
-                    const data = response.body;
-                    const count = Array.isArray(data) ? data.length : 0;
-                    this.reservationCounts.set(dateStr, count);
-                    completed++;
-                    if (completed >= totalDays) {
-                        this.applyCountsToCalendar();
-                        this.loadingDays.set(false);
-                    }
-                },
-                error: () => {
-                    completed++;
-                    if (completed >= totalDays) {
-                        this.applyCountsToCalendar();
-                        this.loadingDays.set(false);
-                    }
-                },
-            });
-        }
+        // Use the single endpoint that returns counts for the whole month
+        this.bookingService.getReservationCounter().subscribe({
+            next: (response) => {
+              const data = response.body;
+              if (data?.dataCounter) {
+                Object.entries(data.dataCounter).forEach(([dateStr, val]) => {
+                  this.reservationCounts.set(dateStr, val as number);
+                });
+              }
+                // Apply whatever we have (may be empty) to the calendar
+                this.applyCountsToCalendar();
+                this.loadingDays.set(false);
+            },
+            error: () => {
+                // On error just ensure calendar is updated (with zeros) and stop loading
+                this.applyCountsToCalendar();
+                this.loadingDays.set(false);
+            },
+        });
     }
 
     private applyCountsToCalendar(): void {
