@@ -14,35 +14,52 @@
         il <strong>{{orario}}</strong>
     </p>
     <p class="success-text">Riceverai una conferma via email a breve. Ti aspettiamo!</p>
+    <!-- Resend confirmation email section -->
+    <p class="success-hint">Se non ricevi l'email entro <strong>60s</strong>, puoi reinviare la conferma usando il pulsante qui sotto. Controlla anche la cartella <strong>Spam/Posta indesiderata</strong>.</p>
 
-    <!-- ── Email Resend Timer ── -->
-    <div class="timer-section">
-        @if (!canResend()) {
-        <div class="timer-ring-wrapper">
-            <svg class="timer-ring" viewBox="0 0 100 100">
-                <circle class="timer-ring-bg" cx="50" cy="50" r="45" />
-                <circle class="timer-ring-progress" cx="50" cy="50" r="45" [style.stroke-dasharray]="circumference"
-                    [style.stroke-dashoffset]="dashOffset" />
-            </svg>
-            <span class="timer-countdown">{{ countdown() }}</span>
-        </div>
-        <p class="timer-hint">Rinvia email tra <strong>{{ countdown() }}s</strong></p>
+
+  <!-- ── Email Resend Timer ── -->
+  <div class="timer-section">
+    @if (!canResend()) {
+      <div class="timer-ring-wrapper">
+        <svg class="timer-ring" viewBox="0 0 100 100">
+          <circle class="timer-ring-bg" cx="50" cy="50" r="45" />
+          <circle class="timer-ring-progress" cx="50" cy="50" r="45" [style.stroke-dasharray]="circumference"
+                  [style.stroke-dashoffset]="dashOffset" />
+        </svg>
+        <span class="timer-countdown">{{ countdown() }}</span>
+      </div>
+      <p class="timer-hint">Rinvia email tra <strong>{{ countdown() }}s</strong></p>
+    } @else {
+      <div class="resend-email-wrapper">
+        <label for="resend-email-input" class="resend-email-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Email errata? Correggila qui prima di reinviare
+        </label>
+        <input type="email" class="resend-email-input" [(ngModel)]="resendEmailAddress"
+               [disabled]="resending()" id="resend-email-input"
+               placeholder="la-tua-email@esempio.it">
+      </div>
+
+      <button class="resend-btn" (click)="resendEmail()" [disabled]="resending()" id="resend-email-btn">
+        @if (resending()) {
+          <span class="resend-spinner"></span>
+          Invio in corso…
         } @else {
-        <button class="resend-btn" (click)="resendEmail()" [disabled]="resending()" id="resend-email-btn">
-            @if (resending()) {
-            <span class="resend-spinner"></span>
-            Invio in corso…
-            } @else {
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-            Reinvia Email di Conferma
-            }
-        </button>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          Reinvia Email di Conferma
         }
-    </div>
+      </button>
+    }
+  </div>
 </div>
 } @else {
 <div class="form-card">
