@@ -22,4 +22,8 @@ export class AllUrl {
   static reservationCounter(){
     return this.baseUrl + '/prenotazioni/month/counter';
   }
+
+  static reservationResendEmail() {
+    return this.baseUrl + "/prenotazioni/resend-email";
+  }
 }

@@ -22,8 +22,11 @@ export class BookingService {
   }
 
   updateReservationStatus(id: number, stato: String): Observable<HttpResponse<any>> {
-    console.log(stato);
-
     return this.http.patch(AllUrl.reservationUpdateStatus(id), { stato }, { observe: 'response' });
+  }
+
+  resendConfirmationEmail(prenotazione: CreateReservationDTO | null): Observable<HttpResponse<any>> {
+    return this.http.post(AllUrl.reservationResendEmail(), prenotazione, { observe: 'response' });
+
   }
 }

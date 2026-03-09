@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import {ReactiveFormsModule, FormBuilder, Validators, FormsModule} from '@angular/forms';
 import { BookingService } from '../../../../core/services/booking.service';
 import { CreateReservationDTO } from '../../../../core/dto/create-reservation.dto';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -7,7 +7,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 @Component({
     selector: 'app-reservation-form',
     standalone: true,
-    imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FormsModule],
     templateUrl: './reservation-form.html',
     styleUrl: './reservation-form.css',
 })
@@ -28,7 +28,8 @@ export class ReservationFormComponent implements OnDestroy {
     coperti: number = 0;
     orario: string = '';
 
-    readonly form = this.fb.nonNullable.group({
+
+  readonly form = this.fb.nonNullable.group({
         nomeCliente: ['', Validators.required],
         cognomeCliente: ['', Validators.required],
         emailCliente: ['', [Validators.required, Validators.email]],
@@ -44,6 +45,9 @@ export class ReservationFormComponent implements OnDestroy {
 
     /** SVG circle circumference (radius 45) */
     readonly circumference = 2 * Math.PI * 45;
+
+    resendEmailAddress: any;
+    prenotazione: CreateReservationDTO | null = null;
 
     get dashOffset(): number {
         return this.circumference * (1 - this.timerProgress);
@@ -69,9 +73,10 @@ export class ReservationFormComponent implements OnDestroy {
             dataOra: localISO,
         };
 
+        this.prenotazione = dto;
+        this.resendEmailAddress = dto.emailCliente;
         this.bookingService.createReservation(dto).subscribe({
             next: (res: HttpResponse<any>) => {
-                console.log(res);
 
                 this.orario = new Date(res.body.dataOra).toLocaleString('it-IT', {
                     day: '2-digit',
@@ -110,18 +115,16 @@ export class ReservationFormComponent implements OnDestroy {
         }, 1000);
     }
 
-    /** Stub: user will connect to their API */
     resendEmail(): void {
         this.resending.set(true);
 
-        // TODO: collegare alla API di rinvio email
-        // this.bookingService.resendConfirmationEmail(reservationId).subscribe({ ... });
+        this.bookingService.resendConfirmationEmail(this.prenotazione).subscribe({
+            next: (res) => {
+                this.resending.set(false);
+                this.startTimer();
+            }
+        });
 
-        // Simulate completion after 1.5s for now
-        setTimeout(() => {
-            this.resending.set(false);
-            this.startTimer();
-        }, 1500);
     }
 
     private clearTimer(): void {
