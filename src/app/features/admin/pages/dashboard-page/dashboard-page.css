@@ -4,14 +4,30 @@
 
 .dashboard-body {
     padding: 28px 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: start;
+}
+
+.dashboard-main {
+    min-width: 0;
+}
+
+.dashboard-aside {
+    position: sticky;
+    top: 100px;
 }
 
 @media (max-width: 768px) {
     .dashboard-body {
         padding: 16px;
         gap: 20px;
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-aside {
+        position: static;
+        order: -1;
     }
 }

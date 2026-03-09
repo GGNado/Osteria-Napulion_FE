@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { BookingService } from '../../../../core/services/booking.service';
 import { CreateReservationDTO } from '../../../../core/dto/create-reservation.dto';
-import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-reservation-form',
@@ -11,7 +11,7 @@ import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
     templateUrl: './reservation-form.html',
     styleUrl: './reservation-form.css',
 })
-export class ReservationFormComponent {
+export class ReservationFormComponent implements OnDestroy {
     private readonly fb = inject(FormBuilder);
     private readonly bookingService = inject(BookingService);
 
@@ -19,7 +19,13 @@ export class ReservationFormComponent {
     readonly success = signal(false);
     readonly error = signal<string | null>(null);
 
-    coperti : number = 0;
+    /** Timer state */
+    readonly countdown = signal(60);
+    readonly canResend = signal(false);
+    readonly resending = signal(false);
+    private timerId: ReturnType<typeof setInterval> | null = null;
+
+    coperti: number = 0;
     orario: string = '';
 
     readonly form = this.fb.nonNullable.group({
@@ -30,6 +36,18 @@ export class ReservationFormComponent {
         dataOra: ['', Validators.required],
         coperti: [2, [Validators.required, Validators.min(1)]],
     });
+
+    /** Progress for the SVG ring (0 → 1) */
+    get timerProgress(): number {
+        return this.countdown() / 60;
+    }
+
+    /** SVG circle circumference (radius 45) */
+    readonly circumference = 2 * Math.PI * 45;
+
+    get dashOffset(): number {
+        return this.circumference * (1 - this.timerProgress);
+    }
 
     onSubmit(): void {
         if (this.form.invalid) {
@@ -47,24 +65,25 @@ export class ReservationFormComponent {
         const localISO = new Date(localDate.getTime() - offset).toISOString();
 
         const dto: CreateReservationDTO = {
-          ...raw,
-          dataOra: localISO,
+            ...raw,
+            dataOra: localISO,
         };
 
         this.bookingService.createReservation(dto).subscribe({
             next: (res: HttpResponse<any>) => {
                 console.log(res);
 
-              this.orario = new Date(res.body.dataOra).toLocaleString('it-IT', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              });
+                this.orario = new Date(res.body.dataOra).toLocaleString('it-IT', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
                 this.coperti = res.body.coperti;
                 this.loading.set(false);
                 this.success.set(true);
+                this.startTimer();
             },
             error: (err: HttpErrorResponse) => {
                 this.loading.set(false);
@@ -73,9 +92,51 @@ export class ReservationFormComponent {
         });
     }
 
+    /** Start the 60-second countdown */
+    private startTimer(): void {
+        this.clearTimer();
+        this.countdown.set(60);
+        this.canResend.set(false);
+
+        this.timerId = setInterval(() => {
+            const current = this.countdown();
+            if (current <= 1) {
+                this.countdown.set(0);
+                this.canResend.set(true);
+                this.clearTimer();
+            } else {
+                this.countdown.set(current - 1);
+            }
+        }, 1000);
+    }
+
+    /** Stub: user will connect to their API */
+    resendEmail(): void {
+        this.resending.set(true);
+
+        // TODO: collegare alla API di rinvio email
+        // this.bookingService.resendConfirmationEmail(reservationId).subscribe({ ... });
+
+        // Simulate completion after 1.5s for now
+        setTimeout(() => {
+            this.resending.set(false);
+            this.startTimer();
+        }, 1500);
+    }
+
+    private clearTimer(): void {
+        if (this.timerId) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.clearTimer();
+    }
+
     isInvalid(name: string): boolean {
         const ctrl = this.form.get(name);
         return !!ctrl && ctrl.invalid && ctrl.touched;
     }
 }
-

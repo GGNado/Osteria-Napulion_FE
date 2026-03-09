@@ -1,0 +1,5 @@
+<app-admin-header />
+<div class="reservations-body">
+    <app-reservations-calendar (daySelected)="onDaySelected($event)" />
+    <app-reservations-table [initialDate]="calendarSelectedDate" />
+</div>

@@ -54,6 +54,7 @@
     transition: all var(--transition-fast);
     width: 100%;
     text-align: left;
+    text-decoration: none;
 }
 
 .nav-item:hover {
@@ -64,6 +65,12 @@
 .nav-item.active {
     background: var(--color-primary);
     color: var(--text-white);
+}
+
+.nav-item.disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
 }
 
 .nav-icon {

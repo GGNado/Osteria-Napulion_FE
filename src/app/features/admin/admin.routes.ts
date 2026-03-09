@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout';
 import { DashboardPageComponent } from './pages/dashboard-page/dashboard-page';
+import { ReservationsPageComponent } from './pages/reservations-page/reservations-page';
 import { authGuard } from '../../core/guards/auth.guard';
 
 export const ADMIN_ROUTES: Routes = [
@@ -12,6 +13,10 @@ export const ADMIN_ROUTES: Routes = [
             {
                 path: '',
                 component: DashboardPageComponent,
+            },
+            {
+                path: 'prenotazioni',
+                component: ReservationsPageComponent,
             },
         ],
     },

@@ -4,13 +4,13 @@ import { ReservationsTableComponent } from '../../components/reservations-table/
 import { ReservationsCalendarComponent } from '../../components/reservations-calendar/reservations-calendar';
 
 @Component({
-    selector: 'app-dashboard-page',
+    selector: 'app-reservations-page',
     standalone: true,
-    imports: [AdminHeaderComponent, ReservationsTableComponent, ReservationsCalendarComponent],
-    templateUrl: './dashboard-page.html',
-    styleUrl: './dashboard-page.css',
+    imports: [AdminHeaderComponent, ReservationsCalendarComponent, ReservationsTableComponent],
+    templateUrl: './reservations-page.html',
+    styleUrl: './reservations-page.css',
 })
-export class DashboardPageComponent {
+export class ReservationsPageComponent {
     calendarSelectedDate: string | null = null;
 
     onDaySelected(date: string): void {
