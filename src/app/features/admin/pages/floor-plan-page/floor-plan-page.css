@@ -1,0 +1,13 @@
+:host {
+    display: block;
+}
+
+.floor-plan-body {
+    padding: 28px 32px;
+}
+
+@media (max-width: 768px) {
+    .floor-plan-body {
+        padding: 16px;
+    }
+}

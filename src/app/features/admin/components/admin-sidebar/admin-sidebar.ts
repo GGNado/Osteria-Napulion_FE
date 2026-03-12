@@ -22,7 +22,7 @@ export class AdminSidebarComponent {
     readonly menuItems: SidebarItem[] = [
         { label: 'Dashboard', icon: 'dashboard', route: '/admin', enabled: true },
         { label: 'Prenotazioni', icon: 'calendar', route: '/admin/prenotazioni', enabled: true },
-        { label: 'Mappa Tavoli', icon: 'map', route: '', enabled: false },
+        { label: 'Mappa Tavoli', icon: 'map', route: '/admin/mappa-tavoli', enabled: true },
         { label: "Lista d'Attesa", icon: 'list', route: '', enabled: false },
         { label: 'Analisi', icon: 'chart', route: '', enabled: false },
     ];

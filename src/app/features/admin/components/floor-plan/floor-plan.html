@@ -1,0 +1,301 @@
+<div class="floor-plan-wrapper">
+
+    <!-- ═══ Toolbar (solo in modalità editable) ═══ -->
+    @if (editable()) {
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button class="toolbar-btn toolbar-btn--add" (click)="addTable()" id="add-table-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nuovo Tavolo
+            </button>
+
+            @if (selectedTable()) {
+            <button class="toolbar-btn toolbar-btn--delete" (click)="deleteSelectedTable()" id="delete-table-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Elimina
+            </button>
+            }
+        </div>
+
+        <div class="toolbar-right">
+            @if (hasUnsavedChanges()) {
+            <span class="unsaved-badge">Modifiche non salvate</span>
+            }
+            <button class="toolbar-btn toolbar-btn--save" [class.has-changes]="hasUnsavedChanges()"
+                [disabled]="isSaving()" (click)="saveLayout()" id="save-layout-btn">
+                @if (isSaving()) {
+                <span class="spinner"></span>
+                Salvando...
+                } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Salva Modifiche
+                }
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- ═══ SVG Piantina ═══ -->
+    <div class="svg-container">
+        <svg #floorSvg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" class="floor-plan-svg"
+            [class.editable]="editable()" [class.dragging]="isDragging()" (mousemove)="onSvgMouseMove($event)"
+            (mouseup)="onSvgMouseUp()" (mouseleave)="onSvgMouseLeave()">
+
+            <!-- Definizioni -->
+            <defs>
+                <filter id="tableShadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.15" />
+                </filter>
+                <linearGradient id="floorGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#faf9f7" />
+                    <stop offset="100%" stop-color="#f5f3ef" />
+                </linearGradient>
+            </defs>
+
+            <!-- Pavimento -->
+            <rect x="20" y="20" width="860" height="560" rx="12" fill="url(#floorGradient)" stroke="#d4d0c8"
+                stroke-width="1" />
+
+            <!-- Muri perimetrali -->
+            <rect x="20" y="20" width="860" height="560" rx="12" fill="none" stroke="#8b8680" stroke-width="4" />
+
+            <!-- Muro interno divisorio -->
+            <line x1="650" y1="20" x2="650" y2="180" stroke="#8b8680" stroke-width="3" stroke-dasharray="8,4" />
+
+            <!-- Bancone -->
+            <rect x="670" y="40" width="190" height="120" rx="8" fill="#d4a574" stroke="#b8956a" stroke-width="2" />
+            <text x="765" y="95" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600"
+                fill="#6b4226" font-family="Inter, sans-serif" letter-spacing="2">BANCONE</text>
+            <!-- Sgabelli -->
+            <circle cx="690" cy="180" r="8" fill="#c9bfb0" stroke="#a89e8f" stroke-width="1.5" />
+            <circle cx="720" cy="180" r="8" fill="#c9bfb0" stroke="#a89e8f" stroke-width="1.5" />
+            <circle cx="750" cy="180" r="8" fill="#c9bfb0" stroke="#a89e8f" stroke-width="1.5" />
+            <circle cx="780" cy="180" r="8" fill="#c9bfb0" stroke="#a89e8f" stroke-width="1.5" />
+            <circle cx="810" cy="180" r="8" fill="#c9bfb0" stroke="#a89e8f" stroke-width="1.5" />
+            <circle cx="840" cy="180" r="8" fill="#c9bfb0" stroke="#a89e8f" stroke-width="1.5" />
+
+            <!-- Ingresso -->
+            <rect x="20" y="480" width="6" height="80" fill="#E8792B" />
+            <line x1="26" y1="490" x2="70" y2="490" stroke="#E8792B" stroke-width="2" stroke-dasharray="4,3" />
+            <line x1="26" y1="550" x2="70" y2="550" stroke="#E8792B" stroke-width="2" stroke-dasharray="4,3" />
+            <text x="58" y="525" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="700"
+                fill="#E8792B" font-family="Inter, sans-serif" letter-spacing="1.5">⬅ INGRESSO</text>
+
+            <!-- Decorazioni -->
+            <circle cx="60" cy="60" r="12" fill="#c8e6c9" stroke="#81c784" stroke-width="1.5" />
+            <text x="60" y="63" text-anchor="middle" font-size="12">🌿</text>
+            <circle cx="840" cy="540" r="12" fill="#c8e6c9" stroke="#81c784" stroke-width="1.5" />
+            <text x="840" y="543" text-anchor="middle" font-size="12">🌿</text>
+            <circle cx="60" cy="420" r="12" fill="#c8e6c9" stroke="#81c784" stroke-width="1.5" />
+            <text x="60" y="423" text-anchor="middle" font-size="12">🌿</text>
+
+            <!-- Zone labels -->
+            <text x="300" y="48" text-anchor="middle" font-size="11" font-weight="600" fill="#a8a29e"
+                font-family="Inter, sans-serif" letter-spacing="2">SALA PRINCIPALE</text>
+            <text x="765" y="230" text-anchor="middle" font-size="10" font-weight="600" fill="#a8a29e"
+                font-family="Inter, sans-serif" letter-spacing="1.5">AREA BAR</text>
+
+            <!-- ===== TAVOLI ===== -->
+            @for (table of tables(); track table.id) {
+
+            @if (table.shape === 'rect') {
+            <g class="table-group" [class.selected]="selectedTable()?.id === table.id"
+                [style.cursor]="editable() ? (isDragging() ? 'grabbing' : 'grab') : 'pointer'"
+                (click)="selectTable(table)" (mousedown)="onTableMouseDown($event, table)">
+                <!-- Sedie -->
+                <circle [attr.cx]="table.x + 20" [attr.cy]="table.y - 12" r="6" fill="#e8e6e1" stroke="#c9c5bd"
+                    stroke-width="1" />
+                <circle [attr.cx]="(table.x + (table.width ?? 100)) - 20" [attr.cy]="table.y - 12" r="6" fill="#e8e6e1"
+                    stroke="#c9c5bd" stroke-width="1" />
+                <circle [attr.cx]="table.x + 20" [attr.cy]="table.y + (table.height ?? 60) + 12" r="6" fill="#e8e6e1"
+                    stroke="#c9c5bd" stroke-width="1" />
+                <circle [attr.cx]="(table.x + (table.width ?? 100)) - 20"
+                    [attr.cy]="table.y + (table.height ?? 60) + 12" r="6" fill="#e8e6e1" stroke="#c9c5bd"
+                    stroke-width="1" />
+                <!-- Tavolo -->
+                <rect [attr.x]="table.x" [attr.y]="table.y" [attr.width]="table.width" [attr.height]="table.height"
+                    rx="8" [attr.fill]="getTableFill(table)" filter="url(#tableShadow)" class="table-shape" />
+                <!-- Selection ring -->
+                @if (selectedTable()?.id === table.id) {
+                <rect [attr.x]="table.x - 3" [attr.y]="table.y - 3" [attr.width]="(table.width ?? 0) + 6"
+                    [attr.height]="(table.height ?? 0) + 6" rx="10" fill="none" stroke="#E8792B" stroke-width="3"
+                    class="selection-ring" />
+                }
+                <!-- Labels -->
+                <text [attr.x]="getTableCenterX(table)" [attr.y]="getTableCenterY(table) - 6" text-anchor="middle"
+                    dominant-baseline="central" font-size="14" font-weight="700" fill="white"
+                    font-family="Inter, sans-serif">{{ table.nome }}</text>
+                <text [attr.x]="getTableCenterX(table)" [attr.y]="getTableCenterY(table) + 12" text-anchor="middle"
+                    dominant-baseline="central" font-size="10" fill="rgba(255,255,255,0.85)"
+                    font-family="Inter, sans-serif">{{ table.massimoPosti }} posti</text>
+            </g>
+            }
+
+            @if (table.shape === 'circle') {
+            <g class="table-group" [class.selected]="selectedTable()?.id === table.id"
+                [style.cursor]="editable() ? (isDragging() ? 'grabbing' : 'grab') : 'pointer'"
+                (click)="selectTable(table)" (mousedown)="onTableMouseDown($event, table)">
+                <!-- Sedie -->
+                <circle [attr.cx]="table.x - (table.radius ?? 35) - 10" [attr.cy]="table.y" r="6" fill="#e8e6e1"
+                    stroke="#c9c5bd" stroke-width="1" />
+                <circle [attr.cx]="table.x + (table.radius ?? 35) + 10" [attr.cy]="table.y" r="6" fill="#e8e6e1"
+                    stroke="#c9c5bd" stroke-width="1" />
+                <circle [attr.cx]="table.x" [attr.cy]="table.y - (table.radius ?? 35) - 10" r="6" fill="#e8e6e1"
+                    stroke="#c9c5bd" stroke-width="1" />
+                <circle [attr.cx]="table.x" [attr.cy]="table.y + (table.radius ?? 35) + 10" r="6" fill="#e8e6e1"
+                    stroke="#c9c5bd" stroke-width="1" />
+                <!-- Tavolo -->
+                <circle [attr.cx]="table.x" [attr.cy]="table.y" [attr.r]="table.radius"
+                    [attr.fill]="getTableFill(table)" filter="url(#tableShadow)" class="table-shape" />
+                @if (selectedTable()?.id === table.id) {
+                <circle [attr.cx]="table.x" [attr.cy]="table.y" [attr.r]="(table.radius ?? 35) + 5" fill="none"
+                    stroke="#E8792B" stroke-width="3" class="selection-ring" />
+                }
+                <text [attr.x]="table.x" [attr.y]="table.y - 5" text-anchor="middle" dominant-baseline="central"
+                    font-size="13" font-weight="700" fill="white" font-family="Inter, sans-serif">{{ table.nome
+                    }}</text>
+                <text [attr.x]="table.x" [attr.y]="table.y + 11" text-anchor="middle" dominant-baseline="central"
+                    font-size="9" fill="rgba(255,255,255,0.85)" font-family="Inter, sans-serif">{{ table.massimoPosti }}
+                    posti</text>
+            </g>
+            }
+            }
+
+        </svg>
+
+        <!-- Legenda -->
+        <div class="legend">
+            @if (editable()) {
+            @for (item of editLegendItems; track item.label) {
+            <div class="legend-item">
+                <span class="legend-dot" [style.background]="item.color"></span>
+                <span class="legend-label">{{ item.label }}</span>
+            </div>
+            }
+            } @else {
+            @for (item of legendItems; track item.status) {
+            <div class="legend-item">
+                <span class="legend-dot" [style.background]="item.color"></span>
+                <span class="legend-label">{{ item.label }}</span>
+            </div>
+            }
+            }
+        </div>
+    </div>
+
+    <!-- ═══ Pannello laterale ═══ -->
+    @if (selectedTable(); as table) {
+    <div class="detail-panel" id="table-detail-panel">
+        <div class="panel-header">
+            <h3 class="panel-title">{{ table.nome }}</h3>
+            <button class="panel-close" (click)="closePanel()" id="close-panel-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="panel-body">
+            @if (editable()) {
+            <!-- Badge attivo/disattivato -->
+            <div class="panel-status" [style.background]="table.attivo ? '#FFF5ED' : '#f3f4f6'"
+                [style.color]="table.attivo ? '#E8792B' : '#9ca3af'"
+                [style.border-color]="table.attivo ? '#E8792B40' : '#d1d5db'">
+                <span class="status-dot" [style.background]="table.attivo ? '#E8792B' : '#c9c5bd'"></span>
+                {{ table.attivo ? 'Attivo' : 'Disattivato' }}
+            </div>
+
+            <!-- ─── Campi editabili ─── -->
+            <div class="edit-fields">
+                <div class="edit-field">
+                    <label class="edit-label">Nome</label>
+                    <input class="edit-input" [ngModel]="table.nome"
+                        (ngModelChange)="updateSelectedField('nome', $event)" />
+                </div>
+                <div class="edit-row">
+                    <div class="edit-field">
+                        <label class="edit-label">Posti min</label>
+                        <input class="edit-input" type="number" [ngModel]="table.minimoPosti"
+                            (ngModelChange)="updateSelectedField('minimoPosti', $event)" />
+                    </div>
+                    <div class="edit-field">
+                        <label class="edit-label">Posti max</label>
+                        <input class="edit-input" type="number" [ngModel]="table.massimoPosti"
+                            (ngModelChange)="updateSelectedField('massimoPosti', $event)" />
+                    </div>
+                </div>
+                <div class="edit-row">
+                    <div class="edit-field">
+                        <label class="edit-label">Forma</label>
+                        <select class="edit-input" [ngModel]="table.shape" disabled
+                            (ngModelChange)="updateSelectedField('shape', $event)">
+                            <option value="rect">Rettangolare</option>
+                            <option value="circle">Rotondo</option>
+                        </select>
+                    </div>
+                    <div class="edit-field">
+                        <label class="edit-label">Attivo</label>
+                        <select class="edit-input" [ngModel]="table.attivo"
+                            (ngModelChange)="updateSelectedField('attivo', $event === 'true')">
+                            <option [value]="true">Sì</option>
+                            <option [value]="false">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="edit-field">
+                    <label class="edit-label">Posizione</label>
+                    <span class="edit-hint">x: {{ table.x }}, y: {{ table.y }}</span>
+                </div>
+            </div>
+            } @else {
+            <!-- Status badge (read-only dashboard) -->
+            <div class="panel-status" [style.background]="statusColors[table.status] + '18'"
+                [style.color]="statusColors[table.status]" [style.border-color]="statusColors[table.status] + '40'">
+                <span class="status-dot" [style.background]="statusColors[table.status]"></span>
+                {{ statusLabels[table.status] }}
+            </div>
+
+            <!-- ─── Info read-only ─── -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">ID Tavolo</span>
+                    <span class="info-value">#{{ table.id }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Posti (min)</span>
+                    <span class="info-value">{{ table.minimoPosti }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Posti (max)</span>
+                    <span class="info-value">{{ table.massimoPosti }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Forma</span>
+                    <span class="info-value">{{ table.shape === 'rect' ? 'Rettangolare' : 'Rotondo' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Attivo</span>
+                    <span class="info-value">{{ table.attivo ? 'Sì' : 'No' }}</span>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+</div>
