@@ -12,6 +12,13 @@
 
 .dashboard-main {
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.dashboard-floor-plan {
+    margin-top: 4px;
 }
 
 .dashboard-aside {

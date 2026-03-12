@@ -19,11 +19,19 @@ export class AllUrl {
     return this.baseUrl + '/prenotazioni/' + id + '/state';
   }
 
-  static reservationCounter(){
+  static reservationCounter() {
     return this.baseUrl + '/prenotazioni/month/counter';
   }
 
   static reservationResendEmail() {
     return this.baseUrl + "/prenotazioni/resend-email";
+  }
+
+  static tavoli(): string {
+    return this.baseUrl + '/tavoli';
+  }
+
+  static tavoliUpdateSchema(): string {
+    return this.baseUrl + '/tavoli/update-schema';
   }
 }
