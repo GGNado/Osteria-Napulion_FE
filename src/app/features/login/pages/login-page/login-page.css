@@ -294,6 +294,26 @@
     color: var(--text-secondary);
 }
 
+/* --- Error Message --- */
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: var(--radius-md);
+    color: #dc2626;
+    font-size: 0.88rem;
+    font-weight: 500;
+    animation: cardFadeIn 0.3s ease-out;
+}
+
+.error-message svg {
+    flex-shrink: 0;
+}
+
 /* --- Submit Button --- */
 .login-btn {
     width: 100%;

@@ -54,6 +54,7 @@
     transition: all var(--transition-fast);
     width: 100%;
     text-align: left;
+    text-decoration: none;
 }
 
 .nav-item:hover {
@@ -66,17 +67,32 @@
     color: var(--text-white);
 }
 
+.nav-item.disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+
 .nav-icon {
-    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 20px;
+    height: 20px;
 }
 
 .sidebar-footer {
-    padding: 20px 24px;
+    padding: 16px 12px 20px;
     border-top: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.shift-status {}
+.shift-status {
+    padding: 0 12px;
+}
 
 .shift-label {
     display: block;
@@ -117,6 +133,30 @@
     }
 }
 
+/* --- Logout Button --- */
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 500;
+    width: 100%;
+    text-align: left;
+    transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+}
+
+.logout-btn svg {
+    flex-shrink: 0;
+}
+
 @media (max-width: 1024px) {
     .sidebar {
         width: 72px;
@@ -125,7 +165,8 @@
     .brand-name,
     .nav-label,
     .shift-label,
-    .shift-info span:not(.shift-dot) {
+    .shift-info span:not(.shift-dot),
+    .logout-label {
         display: none;
     }
 
@@ -140,10 +181,19 @@
     }
 
     .sidebar-footer {
-        padding: 16px 12px;
+        padding: 12px;
+    }
+
+    .shift-status {
+        padding: 0;
     }
 
     .shift-info {
         justify-content: center;
+    }
+
+    .logout-btn {
+        justify-content: center;
+        padding: 10px;
     }
 }

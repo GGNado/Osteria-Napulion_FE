@@ -28,7 +28,23 @@
 }
 
 .stat-icon {
-    font-size: 1.8rem;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-booked .stat-icon {
+    background: var(--color-primary);
+    color: var(--text-white);
+}
+
+.stat-free .stat-icon {
+    background: var(--status-confirmed);
+    color: var(--text-white);
 }
 
 .stat-label {

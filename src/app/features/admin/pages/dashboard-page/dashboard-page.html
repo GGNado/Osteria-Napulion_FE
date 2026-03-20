@@ -1,5 +1,16 @@
 <app-admin-header />
 <div class="dashboard-body">
-    <app-stats-cards />
-    <app-reservations-table />
+    <div class="dashboard-main">
+        <app-reservations-table
+            [initialDate]="selectedDate()"
+            [externalReservations]="reservations()"
+            (dateChanged)="onDateChangedFromTable($event)"
+            (reservationsUpdated)="onReservationsUpdated($event)" />
+        <div class="dashboard-floor-plan">
+            <app-floor-plan [editable]="false" [reservations]="reservations()" />
+        </div>
+    </div>
+    <aside class="dashboard-aside">
+        <app-reservations-calendar [mini]="true" (daySelected)="onDaySelected($event)" />
+    </aside>
 </div>

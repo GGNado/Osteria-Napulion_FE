@@ -1,0 +1,17 @@
+:host {
+    display: block;
+}
+
+.reservations-body {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+@media (max-width: 768px) {
+    .reservations-body {
+        padding: 16px;
+        gap: 20px;
+    }
+}

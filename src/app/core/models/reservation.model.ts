@@ -13,6 +13,20 @@ export interface Reservation {
   status: ReservationStatus;
 }
 
+/** Row model shared between reservations-table and floor-plan */
+export interface ReservationRow {
+  id: number;
+  clientName: string;
+  initials: string;
+  time: string;
+  tableName: string;
+  tableId: number | null;
+  guests: number;
+  status: string;
+  email: string;
+  phone: string;
+}
+
 export interface MenuItem {
   name: string;
   description: string;

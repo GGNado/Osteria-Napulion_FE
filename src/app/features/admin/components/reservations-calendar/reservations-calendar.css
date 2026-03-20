@@ -1,0 +1,292 @@
+:host {
+    display: block;
+}
+
+.calendar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    padding: 20px;
+    position: relative;
+}
+
+/* ── Header ── */
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.calendar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.cal-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+
+.cal-nav-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.cal-nav-btn:active {
+    transform: scale(0.92);
+}
+
+/* ── Grid ── */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+
+/* ── Weekday Headers ── */
+
+.weekday-header {
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    padding: 4px 0 8px;
+}
+
+/* ── Day Cells ── */
+
+.day-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    gap: 1px;
+    padding: 2px;
+    border: 1.5px solid transparent;
+}
+
+.day-cell:hover:not(:disabled) {
+    background: var(--bg-secondary);
+}
+
+.day-cell:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.day-number {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+/* Other month */
+.day-cell.other-month {
+    cursor: default;
+}
+
+.day-cell.other-month .day-number {
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+
+/* Today */
+.day-cell.today {
+    background: rgba(var(--color-primary-rgb, 139, 92, 42), 0.08);
+}
+
+.day-cell.today .day-number {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* Selected */
+.day-cell.selected {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 3px 10px rgba(var(--color-primary-rgb, 139, 92, 42), 0.3);
+}
+
+.day-cell.selected .day-number {
+    color: var(--text-white, #fff);
+    font-weight: 700;
+}
+
+.day-cell.selected .day-badge {
+    background: rgba(255, 255, 255, 0.3);
+    color: var(--text-white, #fff);
+}
+
+/* ── Reservation Badge ── */
+
+.day-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 14px;
+    padding: 0 4px;
+    border-radius: 7px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    background: var(--color-primary);
+    color: var(--text-white, #fff);
+    line-height: 1;
+}
+
+.day-cell.has-reservations:not(.selected):not(.other-month) {
+    border-color: rgba(var(--color-primary-rgb, 139, 92, 42), 0.2);
+}
+
+/* ── Loading ── */
+
+.calendar-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.cal-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border-light);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: calSpin 0.7s linear infinite;
+}
+
+@keyframes calSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Mini mode ── */
+
+:host(.mini) .calendar-card {
+    padding: 10px;
+    max-width: 220px;
+}
+
+:host(.mini) .calendar-header {
+    margin-bottom: 8px;
+}
+
+:host(.mini) .calendar-title {
+    font-size: 0.72rem;
+}
+
+:host(.mini) .cal-nav-btn {
+    width: 22px;
+    height: 22px;
+}
+
+:host(.mini) .cal-nav-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+:host(.mini) .calendar-grid {
+    gap: 1px;
+}
+
+:host(.mini) .weekday-header {
+    font-size: 0.48rem;
+    padding: 2px 0 4px;
+    letter-spacing: 0.2px;
+}
+
+:host(.mini) .day-cell {
+    aspect-ratio: unset;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    padding: 1px;
+    gap: 0;
+    border-width: 1px;
+}
+
+:host(.mini) .day-number {
+    font-size: 0.58rem;
+}
+
+:host(.mini) .day-badge {
+    min-width: 12px;
+    height: 10px;
+    padding: 0 2px;
+    border-radius: 5px;
+    font-size: 0.4rem;
+}
+
+:host(.mini) .day-cell.selected {
+    box-shadow: none;
+}
+
+:host(.mini) .calendar-loading {
+    font-size: 0.6rem;
+    gap: 4px;
+    padding: 4px 0 0;
+}
+
+:host(.mini) .cal-spinner {
+    width: 10px;
+    height: 10px;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+    .calendar-card {
+        padding: 12px;
+    }
+
+    .calendar-title {
+        font-size: 0.9rem;
+    }
+
+    .cal-nav-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .day-cell {
+        border-radius: 6px;
+    }
+
+    .day-number {
+        font-size: 0.7rem;
+    }
+
+    .day-badge {
+        min-width: 14px;
+        height: 12px;
+        font-size: 0.5rem;
+        padding: 0 3px;
+    }
+
+    .weekday-header {
+        font-size: 0.55rem;
+    }
+}

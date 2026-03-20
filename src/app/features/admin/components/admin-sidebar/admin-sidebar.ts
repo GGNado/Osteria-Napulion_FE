@@ -1,28 +1,33 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface SidebarItem {
     label: string;
     icon: string;
+    route: string;
+    enabled: boolean;
 }
 
 @Component({
     selector: 'app-admin-sidebar',
     standalone: true,
+    imports: [RouterLink, RouterLinkActive],
     templateUrl: './admin-sidebar.html',
     styleUrl: './admin-sidebar.css',
 })
 export class AdminSidebarComponent {
-    readonly menuItems = signal<SidebarItem[]>([
-        { label: 'Dashboard', icon: '📊' },
-        { label: 'Prenotazioni', icon: '📅' },
-        { label: 'Mappa Tavoli', icon: '🗺️' },
-        { label: "Lista d'Attesa", icon: '📋' },
-        { label: 'Analisi', icon: '📈' },
-    ]);
+    private readonly authService = inject(AuthService);
 
-    readonly activeItem = signal('Dashboard');
+    readonly menuItems: SidebarItem[] = [
+        { label: 'Dashboard', icon: 'dashboard', route: '/admin', enabled: true },
+        { label: 'Prenotazioni', icon: 'calendar', route: '/admin/prenotazioni', enabled: true },
+        { label: 'Mappa Tavoli', icon: 'map', route: '/admin/mappa-tavoli', enabled: true },
+        { label: "Lista d'Attesa", icon: 'list', route: '', enabled: false },
+        { label: 'Analisi', icon: 'chart', route: '', enabled: false },
+    ];
 
-    setActive(label: string): void {
-        this.activeItem.set(label);
+    onLogout(): void {
+        this.authService.logout();
     }
 }
