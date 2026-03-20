@@ -264,35 +264,81 @@
             </div>
             } @else {
             <!-- Status badge (read-only dashboard) -->
-            <div class="panel-status" [style.background]="statusColors[table.status] + '18'"
-                [style.color]="statusColors[table.status]" [style.border-color]="statusColors[table.status] + '40'">
-                <span class="status-dot" [style.background]="statusColors[table.status]"></span>
-                {{ statusLabels[table.status] }}
+            <div class="panel-status" [style.background]="statusColors[getComputedStatus(table)] + '18'"
+                [style.color]="statusColors[getComputedStatus(table)]"
+                [style.border-color]="statusColors[getComputedStatus(table)] + '40'">
+                <span class="status-dot" [style.background]="statusColors[getComputedStatus(table)]"></span>
+                {{ statusLabels[getComputedStatus(table)] }}
             </div>
 
-            <!-- ─── Info read-only ─── -->
+            <!-- ─── Info tavolo ─── -->
             <div class="info-grid">
                 <div class="info-item">
                     <span class="info-label">ID Tavolo</span>
                     <span class="info-value">#{{ table.id }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Posti (min)</span>
-                    <span class="info-value">{{ table.minimoPosti }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Posti (max)</span>
-                    <span class="info-value">{{ table.massimoPosti }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Forma</span>
-                    <span class="info-value">{{ table.shape === 'rect' ? 'Rettangolare' : 'Rotondo' }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Attivo</span>
-                    <span class="info-value">{{ table.attivo ? 'Sì' : 'No' }}</span>
+                    <span class="info-label">Posti</span>
+                    <span class="info-value">{{ table.minimoPosti }} – {{ table.massimoPosti }}</span>
                 </div>
             </div>
+
+            <!-- ─── Prenotazioni del tavolo ─── -->
+            @if (selectedTableReservations().length > 0) {
+            <div class="reservation-section">
+                <h4 class="reservation-section-title">Prenotazioni</h4>
+                @for (res of selectedTableReservations(); track res.id) {
+                <div class="reservation-card">
+                    <div class="reservation-card-header">
+                        <span class="reservation-avatar">{{ res.initials }}</span>
+                        <div class="reservation-card-info">
+                            <span class="reservation-client-name">{{ res.clientName }}</span>
+                            <span class="reservation-time">{{ res.time }}</span>
+                        </div>
+                        <span class="reservation-status-badge"
+                            [class.res-status-confirmed]="res.status === 'CONFERMATA' || res.status === 'Confermato'"
+                            [class.res-status-seated]="res.status === 'SEDUTO' || res.status === 'Seduto'"
+                            [class.res-status-waiting]="res.status === 'IN_ATTESA' || res.status === 'In Attesa'"
+                            [class.res-status-cancelled]="res.status === 'ANNULLATA' || res.status === 'Annullata' || res.status === 'Rifiutata'">
+                            {{ res.status }}
+                        </span>
+                    </div>
+                    <div class="reservation-card-details">
+                        <span class="reservation-detail">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                            {{ res.guests }} ospiti
+                        </span>
+                        @if (res.phone) {
+                        <span class="reservation-detail">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
+                            {{ res.phone }}
+                        </span>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            } @else {
+            <div class="empty-reservation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Tavolo libero</span>
+            </div>
+            }
             }
         </div>
     </div>

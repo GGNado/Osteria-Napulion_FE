@@ -1,6 +1,6 @@
 export enum TableStatus {
     LIBERO = 'Libero',
-    PRENOTATO = 'Prenotato',
+    IN_ATTESA = 'In Attesa',
     OCCUPATO = 'Occupato',
 }
 

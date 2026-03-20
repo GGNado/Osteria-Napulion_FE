@@ -1,20 +1,9 @@
-import { Component, inject, signal, computed, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { BookingService } from '../../../../core/services/booking.service';
+import { ReservationRow } from '../../../../core/models/reservation.model';
 import { FormsModule } from '@angular/forms';
 
 type FilterType = 'all' | 'confirmed' | 'seated' | 'waiting';
-
-interface ReservationRow {
-    id: number;
-    clientName: string;
-    initials: string;
-    time: string;
-    table: string;
-    guests: number;
-    status: string;
-    email: string;
-    phone: string;
-}
 
 @Component({
     selector: 'app-reservations-table',
@@ -26,6 +15,19 @@ interface ReservationRow {
 export class ReservationsTableComponent implements OnInit, OnChanges {
     /** Optional: date passed from calendar selection */
     @Input() initialDate: string | null = null;
+
+    /**
+     * Se fornito dal parent, le prenotazioni vengono usate direttamente
+     * senza caricarle internamente (modalità dashboard).
+     */
+    @Input() externalReservations: ReservationRow[] | null = null;
+
+    /** Emette la data selezionata quando l'utente la cambia */
+    @Output() dateChanged = new EventEmitter<string>();
+
+    /** Emette la lista aggiornata quando cambia lo stato di una prenotazione */
+    @Output() reservationsUpdated = new EventEmitter<ReservationRow[]>();
+
     private readonly bookingService = inject(BookingService);
 
     readonly selectedDate = signal<string>(this.getTodayString());
@@ -56,7 +58,6 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         const filter = this.activeFilter();
         switch (filter) {
             case 'confirmed':
-                console.log(list);
                 list = list.filter((r) => r.status === 'CONFERMATA');
                 break;
             case 'seated':
@@ -82,20 +83,30 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
     ];
 
     ngOnInit(): void {
-        this.loadReservations(this.selectedDate());
+        if (!this.externalReservations) {
+            this.loadReservations(this.selectedDate());
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['initialDate'] && changes['initialDate'].currentValue) {
             const date = changes['initialDate'].currentValue;
             this.selectedDate.set(date);
-            this.loadReservations(date);
+            if (!this.externalReservations) {
+                this.loadReservations(date);
+            }
+        }
+        if (changes['externalReservations'] && this.externalReservations) {
+            this.reservations.set(this.externalReservations);
         }
     }
 
     onDateChange(date: string): void {
         this.selectedDate.set(date);
-        this.loadReservations(date);
+        this.dateChanged.emit(date);
+        if (!this.externalReservations) {
+            this.loadReservations(date);
+        }
     }
 
     shiftDate(days: number): void {
@@ -103,7 +114,10 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         current.setDate(current.getDate() + days);
         const newDate = this.formatDate(current);
         this.selectedDate.set(newDate);
-        this.loadReservations(newDate);
+        this.dateChanged.emit(newDate);
+        if (!this.externalReservations) {
+            this.loadReservations(newDate);
+        }
     }
 
     setFilter(filter: FilterType): void {
@@ -130,6 +144,7 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         this.reservations.update(list =>
             list.map(r => r.id === res.id ? { ...r, status: newStatus } : r)
         );
+        this.reservationsUpdated.emit(this.reservations());
         // Refresh modal if open
         const sel = this.selectedReservation();
         if (sel && sel.id === res.id) {
@@ -142,6 +157,7 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
                 this.reservations.update(list =>
                     list.map(r => r.id === res.id ? { ...r, status: oldStatus } : r)
                 );
+                this.reservationsUpdated.emit(this.reservations());
                 if (sel && sel.id === res.id) {
                     this.selectedReservation.set({ ...sel, status: oldStatus });
                 }
@@ -181,7 +197,7 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         }
     }
 
-    private loadReservations(date: string): void {
+    loadReservations(date: string): void {
         this.loading.set(true);
         this.error.set(null);
 
@@ -205,7 +221,7 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         });
     }
 
-    private mapToRow(item: any, index: number): ReservationRow {
+    mapToRow(item: any, index: number): ReservationRow {
         const nome = item.nomeCliente || '';
         const cognome = item.cognomeCliente || '';
         const fullName = `${nome} ${cognome}`.trim();
@@ -220,7 +236,8 @@ export class ReservationsTableComponent implements OnInit, OnChanges {
         return {
             id: item.id ?? index,
             clientName: fullName || 'N/D',
-            table: item.tavolo ? `${item.tavolo}` : 'N/D',
+            tableName: item.tavolo?.nome ?? 'N/D',
+            tableId: item.tavolo?.id ?? null,
             initials: initials || '??',
             time: time || 'N/D',
             guests: item.coperti ?? 0,

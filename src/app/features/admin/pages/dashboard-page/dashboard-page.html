@@ -1,9 +1,13 @@
 <app-admin-header />
 <div class="dashboard-body">
     <div class="dashboard-main">
-        <app-reservations-table [initialDate]="calendarSelectedDate" />
+        <app-reservations-table
+            [initialDate]="selectedDate()"
+            [externalReservations]="reservations()"
+            (dateChanged)="onDateChangedFromTable($event)"
+            (reservationsUpdated)="onReservationsUpdated($event)" />
         <div class="dashboard-floor-plan">
-            <app-floor-plan [editable]="false" />
+            <app-floor-plan [editable]="false" [reservations]="reservations()" />
         </div>
     </div>
     <aside class="dashboard-aside">
