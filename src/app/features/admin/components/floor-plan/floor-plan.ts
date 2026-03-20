@@ -1,6 +1,7 @@
 import { Component, signal, computed, input, inject, ElementRef, viewChild, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Table, TableStatus } from '../../../../core/models/table.model';
+import { ReservationRow } from '../../../../core/models/reservation.model';
 import { TableService } from '../../../../core/services/table.service';
 import { UpdateTableSchemaDTO } from '../../../../core/dto/update-table-schema.dto';
 
@@ -17,6 +18,9 @@ export class FloorPlanComponent implements OnInit {
     /** Se true abilita drag-and-drop, crea/elimina tavoli, salva */
     readonly editable = input(false);
 
+    /** Prenotazioni passate dal parent (dashboard-page) */
+    readonly reservations = input<ReservationRow[]>([]);
+
     readonly selectedTable = signal<Table | null>(null);
     readonly hasUnsavedChanges = signal(false);
     readonly isSaving = signal(false);
@@ -26,13 +30,56 @@ export class FloorPlanComponent implements OnInit {
 
     readonly tables = signal<Table[]>([]);
 
+    /** Calcola lo stato di ogni tavolo in base alle prenotazioni */
+    readonly tableStatusMap = computed<Map<number, { status: TableStatus; reservations: ReservationRow[] }>>(() => {
+        const map = new Map<number, { status: TableStatus; reservations: ReservationRow[] }>();
+        const res = this.reservations();
+
+        // Raggruppa prenotazioni per tableId
+        for (const r of res) {
+            if (r.tableId == null) continue;
+            if (!map.has(r.tableId)) {
+                map.set(r.tableId, { status: TableStatus.LIBERO, reservations: [] });
+            }
+            map.get(r.tableId)!.reservations.push(r);
+        }
+
+        // Determina lo stato in base alle prenotazioni
+        for (const [tableId, entry] of map) {
+            const hasOccupied = entry.reservations.some(
+                r => r.status === 'CONFERMATA' || r.status === 'Confermato' ||
+                     r.status === 'SEDUTO' || r.status === 'Seduto'
+            );
+            const hasWaiting = entry.reservations.some(
+                r => r.status === 'IN_ATTESA' || r.status === 'In Attesa'
+            );
+
+            if (hasOccupied) {
+                entry.status = TableStatus.OCCUPATO;
+            } else if (hasWaiting) {
+                entry.status = TableStatus.IN_ATTESA;
+            } else {
+                entry.status = TableStatus.LIBERO;
+            }
+        }
+
+        return map;
+    });
+
+    /** Prenotazioni del tavolo selezionato */
+    readonly selectedTableReservations = computed<ReservationRow[]>(() => {
+        const table = this.selectedTable();
+        if (!table) return [];
+        const entry = this.tableStatusMap().get(table.id);
+        return entry?.reservations ?? [];
+    });
+
     ngOnInit(): void {
         this.loadTablesFromApi();
     }
 
     private loadTablesFromApi(): void {
         this.isLoading.set(true);
-        console.log("Entro")
         this.tableService.getAllTables().subscribe({
             next: (res) => {
                 const tableArray = res.body?.TavoloFindAllDTO;
@@ -54,7 +101,6 @@ export class FloorPlanComponent implements OnInit {
 
     /** Mappa un tavolo dal backend al formato interno Table */
     private mapBackendTable(t: any): Table {
-        const isSmall = (t.massimoPosti ?? 4) <= 4;
         return {
             id: t.id,
             nome: t.nome ?? `Tavolo ${t.id}`,
@@ -63,11 +109,7 @@ export class FloorPlanComponent implements OnInit {
             massimoPosti: t.massimoPosti ?? 4,
             x: t.x ?? 400,
             y: t.y ?? 300,
-            /*shape: isSmall ? 'rect' : 'rect',
-            ...(isSmall
-                ? { radius: 35 }
-                : { width: t.massimoPosti >= 8 ? 120 : 100, height: t.massimoPosti >= 8 ? 70 : 60 }),*/
-            shape:  'rect',
+            shape: 'rect',
             width: 100,
             height: 60,
             status: TableStatus.LIBERO,
@@ -76,19 +118,19 @@ export class FloorPlanComponent implements OnInit {
 
     readonly statusColors: Record<TableStatus, string> = {
         [TableStatus.LIBERO]: '#22c55e',
-        [TableStatus.PRENOTATO]: '#f59e0b',
+        [TableStatus.IN_ATTESA]: '#6b7280',
         [TableStatus.OCCUPATO]: '#ef4444',
     };
 
     readonly statusLabels: Record<TableStatus, string> = {
         [TableStatus.LIBERO]: 'Libero',
-        [TableStatus.PRENOTATO]: 'Prenotato',
+        [TableStatus.IN_ATTESA]: 'In Attesa',
         [TableStatus.OCCUPATO]: 'Occupato',
     };
 
     readonly legendItems = [
         { status: TableStatus.LIBERO, label: 'Libero', color: '#22c55e' },
-        { status: TableStatus.PRENOTATO, label: 'Prenotato', color: '#f59e0b' },
+        { status: TableStatus.IN_ATTESA, label: 'In Attesa', color: '#6b7280' },
         { status: TableStatus.OCCUPATO, label: 'Occupato', color: '#ef4444' },
     ];
 
@@ -137,13 +179,8 @@ export class FloorPlanComponent implements OnInit {
         this.isDragging.set(true);
 
         const pt = this.getSvgPoint(event);
-        if (table.shape === 'circle') {
-            this.dragOffsetX = pt.x - table.x;
-            this.dragOffsetY = pt.y - table.y;
-        } else {
-            this.dragOffsetX = pt.x - table.x;
-            this.dragOffsetY = pt.y - table.y;
-        }
+        this.dragOffsetX = pt.x - table.x;
+        this.dragOffsetY = pt.y - table.y;
 
         this.selectedTable.set(table);
     }
@@ -285,12 +322,20 @@ export class FloorPlanComponent implements OnInit {
 
     // ─── Helpers ───
 
+    /** Restituisce lo stato reale del tavolo dalla mappa delle prenotazioni */
+    getComputedStatus(table: Table): TableStatus {
+        if (this.editable()) return table.status;
+        const entry = this.tableStatusMap().get(table.id);
+        return entry?.status ?? TableStatus.LIBERO;
+    }
+
     getTableFill(table: Table): string {
         if (this.editable()) {
             // In edit mode: active = brand color, inactive = grey
             return table.attivo ? '#E8792B' : '#c9c5bd';
         }
-        return this.statusColors[table.status];
+        const status = this.getComputedStatus(table);
+        return this.statusColors[status];
     }
 
     getTableCenterX(table: Table): number {
